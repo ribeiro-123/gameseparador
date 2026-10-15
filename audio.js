@@ -2,10 +2,10 @@
 
 // Mapeamento dos sons do jogo (podem ser links diretos ou arquivos locais)
 const efeitosSonoros = {
-  pegarItem: new Audio("./assets/sounds/trim.mp3"),
-  soltarColeta: new Audio("./assets/sounds/trim.mp3"),
-  motoChegando: new Audio("./assets/sounds/moto.mp3"),
-  pedidoFinalizado: new Audio("./assets/sounds/aplauses.mp3")
+  pegarItem: new Audio("../assets/sounds/trim.mp3"),
+  soltarColeta: new Audio("../assets/sounds/trim.mp3"),
+  motoChegando: new Audio("../assets/sounds/moto.mp3"),
+  pedidoFinalizado: new Audio("../assets/sounds/aplauses.mp3")
 };
 
 // Ajusta volume padrão e permite tocar sem travar se o usuário clicar rápido
