@@ -1,7 +1,7 @@
 import { COLS, ROWS, COLETA_POS, CATALOGO_ITENS, FALAS_CLIENTES, FRASES_ENTREGADORES } from './config.js';
 import { atualizarInterfaceLista, atualizarEstadoControles, mostrarModalVitoria } from './ui.js';
 import { desenharTudo } from './renderer.js';
-import { tocarSom } from 'audio.js';
+import { tocarSom } from './audio.js';
 
 export const gameState = {
   playerX: COLETA_POS.x,
