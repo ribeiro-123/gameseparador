@@ -61,8 +61,6 @@ function exibirModalPassoTutorial() {
     let joystickEl = document.getElementById("joystickHandle") || document.querySelector(".joystick");
     if (joystickEl) joystickEl.classList.add('tutorial-destaque-zoom');
 
-    tocarSom('pegarItem');
-
   } else if (passoTutorialAtivo === 2) {
     textoMensagem = "Excelente! Agora toque no ícone do carrinho para coletar o item";
     let btnAcao = document.getElementById("bAcao") || document.querySelector("btn-acao");
