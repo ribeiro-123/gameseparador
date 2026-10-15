@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Separador iFood - O jogo</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- Aviso de Orientação -->
+  <div id="rotacionarAviso">
+    <div class="icone">📱</div>
+    <h2>Gire o celular!</h2>
+    <p>O jogo foi desenhado para o modo **Horizontal**.</p>
+  </div>
+
+  <!-- Tela Inicial -->
+  <div id="telaInicial">
+    <h2>Game | 📦 Separador iFood</h2>
+    <button id="btnJogar">INICIAR TURNO</button>
+  </div>
+
+  <!-- Tela de Splash / Carregamento -->
+  <div id="telaSplash">
+    <img id="cart-load" src="https://mir-s3-cdn-cf.behance.net/project_modules/max_632/a4789c100246457.5f04c4f143deb.gif" alt="">
+    <div class="spinner"></div>
+    <h2>Carregando pedidos, aguarde...</h2>
+  </div>
+
+  <!-- Modal de Vitória / Resumo -->
+  <div id="modalVitoria">
+    <h1 id="tituloModal">🎉 Pedido Concluído!</h1>
+    <p>Itens Coletados: <b id="itensColetadosText">0/0</b> (<span id="percentualText">0%</span>)</p>
+    <p>Saldo: <b id="moedasGanhasText" style="color: #f59e0b;">0 🪙</b></p>
+    <p>Saldo Total: <b id="saldoMoedasText">0 🪙</b></p>
+    <button class="btn-reiniciar" onclick="prepararNovoPedido()">PRÓXIMO PEDIDO</button>
+  </div>
+
+  <!-- Área do Jogo -->
+  <div id="gameArea">
+    <!-- Joystick Analógico à Esquerda -->
+    <div id="joystickBase">
+      <div id="joystickHandle"></div>
+    </div>
+
+    <!-- Canvas do Jogo ao Centro -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Painel Lateral Vertical na Direita -->
+    <div class="right-panel">
+      <div class="info-card">
+        
+        <h4>Saldo</h4>
+        <div class="num-destaque" style="color: #f59e0b;" id="moedasNum">0 🪙</div>
+
+        <hr>
+
+        <h4>Pedidos feitos</h4>
+        <div class="num-destaque" id="pedidosConcluidosNum">0</div>
+
+        <hr>
+
+        <h4>Itens Entregues</h4>
+        <div id="placarItens">
+            Itens: <span id="itensEntreguesText">0/0</span>
+        </div>
+
+        <hr>
+
+        <h4>Tempo Restante</h4>
+        <div class="timer-val" id="timerText">0.0s</div>
+
+        <hr>
+
+        <div class="shopping-list-container">
+          <h5>Lista</h5>
+          <ul id="listaPedidoContainer"></ul>
+        </div>
+
+      </div>
+
+      <div class="action-container" id="actionGroup">
+        <button class="btn-acao" id="bAcao" title="Coletar / Entregar">🛒</button>
+      </div>
+    </div>
+
+    <div class="msg">
+    </div>
+
+    <!-- Overlay com o Botão "Separar Pedido" -->
+    <div id="overlayPronto">
+      <button id="btnSepararPedido">📦 INICIAR SEPARAÇÃO</button>
+    </div>
+  </div>
+
+  <!-- Script Principal do Módulo -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>

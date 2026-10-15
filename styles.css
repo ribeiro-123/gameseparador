@@ -1,0 +1,386 @@
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #121212;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+/* Tela de Aviso (Orientação) */
+#rotacionarAviso {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: #ea1d2c;
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+#rotacionarAviso .icone {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+/* Tela Inicial */
+#telaInicial {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: #ffffff;
+  z-index: 8888;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  color: #121212;
+}
+
+#btnJogar {
+  width: 300px;
+  height: 60px;
+  background-color: #ea1d2c;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(234, 29, 44, 0.4);
+}
+
+/* Tela de Splash (Carregamento) */
+#telaSplash {
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  left: 0;
+  width: 100vw; height: 100vh;
+  background-color: #ffffff;
+  z-index: 8500;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+#telaSplash h2 {
+  color: #c92626;
+  font-size: 24px;
+  margin: 0;
+}
+
+#cart-load{
+  width: 200px;
+}
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(187, 97, 97, 0.2);
+  border-top: 4px solid #b12a2a;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Overlay / Botão "Separa Pedido" pré-jogo */
+#overlayPronto {
+  display: none;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 5000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+#btnSepararPedido {
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  color: white;
+  border: 3px solid #ffffff;
+  padding: 18px 45px;
+  font-size: 22px;
+  font-weight: bold;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
+  transition: transform 0.1s;
+}
+
+#btnSepararPedido:active {
+  transform: scale(0.95);
+}
+
+/* Modal de Vitória / Resumo */
+#modalVitoria {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0,0,0,0.85);
+  z-index: 9000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+#modalVitoria h1 {
+  color: #22c55e;
+  margin: 0;
+  font-size: 28px;
+}
+
+#modalVitoria p {
+  font-size: 16px;
+  color: #ddd;
+  margin: 2px 0;
+}
+
+.btn-reiniciar {
+  background-color: #ea1d2c;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* Área do Jogo */
+#gameArea {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background-color: #121212;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* JOYSTICK VIRTUAL ANALÓGICO (Esquerda) */
+#joystickBase {
+  position: absolute;
+  left: 30px;
+  bottom: 5px;
+  width: 120px;
+  height: 120px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  transition: opacity 0.2s;
+}
+
+#joystickHandle {
+  width: 50px;
+  height: 50px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  position: absolute;
+  pointer-events: none;
+  transition: transform 0.05s linear;
+}
+
+/* PAINEL LATERAL DIREITO */
+.right-panel {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  bottom: 10px;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.info-card {
+  flex: 1;
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-radius: 14px;
+  padding: 8px 6px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.info-card h4 {
+  margin: 0;
+  font-size: 8px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+#placarItens {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 2px 0;
+}
+
+.info-card .timer-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ea1d2c;
+  margin-bottom: 2px;
+}
+
+.info-card hr {
+  width: 90%;
+  border: none;
+  border-top: 1px solid #cbd5e1;
+  margin: 4px 0;
+}
+
+.shopping-list-container {
+  width: 100%;
+  text-align: left;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.shopping-list-container h5 {
+  margin: 0 0 4px 0;
+  font-size: 10px;
+  color: #0f172a;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* A lista UL propriamente dita com rolagem ativada */
+.shopping-list-container ul,
+#listaPedidoContainer {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0; /* Permite que o scroll funcione dentro do flexbox */
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto; /* ATIVA A ROLAGEM VERTICAL */
+  list-style: none;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #475569 transparent;
+}
+
+.shopping-list-container li,
+#listaPedidoContainer li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 2px;
+  padding: 4px 3px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0; /* Impede que os itens da lista fiquem achatados */
+}
+
+.shopping-list-container li.concluido {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+
+/* BOTÃO DE AÇÃO "COLETA" */
+.action-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+.btn-acao {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #ea1d2c 0%, #b91c1c 100%);
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  color: white;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(234, 29, 44, 0.5), inset 0 2px 4px rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-acao:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(234, 29, 44, 0.4);
+}
+
+.controles-bloqueados {
+  opacity: 0.35 !important;
+  pointer-events: none !important;
+}
+
+@media (orientation: portrait) {
+  #rotacionarAviso { display: flex; }
+  #telaInicial, #gameArea, #modalVitoria, #telaSplash, #overlayPronto { display: none !important; }
+}
+@keyframes tutorialPulseZoom {
+  0% { transform: scale(1.5); filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0)); }
+  50% { transform: scale(1.8); filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.9)); }
+  100% { transform: scale(1.5); filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0)); }
+}
+
+.tutorial-destaque-zoom {
+  animation: tutorialPulseZoom 1s infinite ease-in-out !important;
+  z-index: 9999 !important;
+  position: relative;
+}

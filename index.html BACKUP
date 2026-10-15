@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Separador iFood - Jogo Completo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #121212;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Tela de Aviso (Orientação) */
+    #rotacionarAviso {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #ea1d2c;
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #rotacionarAviso .icone {
+      font-size: 60px;
+      margin-bottom: 15px;
+    }
+
+    /* Tela Inicial */
+    #telaInicial {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #222;
+      z-index: 8888;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      padding: 20px;
+    }
+
+    #btnJogar {
+      background-color: #ea1d2c;
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(234, 29, 44, 0.4);
+    }
+
+    /* Tela de Splash (Carregamento) */
+    #telaSplash {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #121212;
+      z-index: 8500;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    #telaSplash h2 {
+      color: #ea1d2c;
+      font-size: 24px;
+      margin: 0;
+    }
+
+    .spinner {
+      width: 45px;
+      height: 45px;
+      border: 4px solid rgba(234, 29, 44, 0.2);
+      border-top: 4px solid #ea1d2c;
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+    }
+
+    @keyframes girar {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Overlay / Botão "Separa Pedido" pré-jogo */
+    #overlayPronto {
+      display: none;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: rgba(0, 0, 0, 0.65);
+      z-index: 5000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    #btnSepararPedido {
+      background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+      color: white;
+      border: 3px solid #ffffff;
+      padding: 18px 45px;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
+      transition: transform 0.1s;
+    }
+
+    #btnSepararPedido:active {
+      transform: scale(0.95);
+    }
+
+    /* Modal de Vitória / Resumo */
+    #modalVitoria {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: rgba(0,0,0,0.85);
+      z-index: 9000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+    }
+
+    #modalVitoria h1 {
+      color: #22c55e;
+      margin: 0;
+      font-size: 28px;
+    }
+
+    #modalVitoria p {
+      font-size: 16px;
+      color: #ddd;
+      margin: 2px 0;
+    }
+
+    .btn-reiniciar {
+      background-color: #ea1d2c;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Área do Jogo */
+    #gameArea {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background-color: #121212;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* JOYSTICK VIRTUAL ANALÓGICO (Esquerda) */
+    #joystickBase {
+      position: absolute;
+      left: 30px;
+      bottom: 30px;
+      width: 120px;
+      height: 120px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      transition: opacity 0.2s;
+    }
+
+    #joystickHandle {
+      width: 50px;
+      height: 50px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      position: absolute;
+      pointer-events: none;
+      transition: transform 0.05s linear;
+    }
+
+    /* PAINEL LATERAL DIREITO */
+    .right-panel {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      bottom: 10px;
+      width: 145px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .info-card {
+      flex: 1;
+      background-color: #f8fafc;
+      color: #0f172a;
+      border-radius: 14px;
+      padding: 8px 6px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .info-card h4 {
+      margin: 0;
+      font-size: 8px;
+      color: #64748b;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .info-card .num-destaque {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2px 0;
+    }
+
+    .info-card .timer-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ea1d2c;
+      margin-bottom: 2px;
+    }
+
+    .info-card hr {
+      width: 90%;
+      border: none;
+      border-top: 1px solid #cbd5e1;
+      margin: 4px 0;
+    }
+
+    .shopping-list-container {
+      width: 100%;
+      text-align: left;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .shopping-list-container h5 {
+      margin: 0 0 4px 0;
+      font-size: 10px;
+      color: #0f172a;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .shopping-list-container ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .shopping-list-container li {
+      font-size: 10px;
+      padding: 3px 0;
+      border-bottom: 1px dashed #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .shopping-list-container li.concluido {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+
+    /* BOTÃO DE AÇÃO "COLETA" */
+    .action-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 2px;
+    }
+
+    .btn-acao {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #ea1d2c 0%, #b91c1c 100%);
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      color: white;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(234, 29, 44, 0.5), inset 0 2px 4px rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .btn-acao:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 8px rgba(234, 29, 44, 0.4);
+    }
+
+    .controles-bloqueados {
+      opacity: 0.35 !important;
+      pointer-events: none !important;
+    }
+
+    @media (orientation: portrait) {
+      #rotacionarAviso { display: flex; }
+      #telaInicial, #gameArea, #modalVitoria, #telaSplash, #overlayPronto { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Aviso de Orientação -->
+  <div id="rotacionarAviso">
+    <div class="icone">📱</div>
+    <h2>Gire o celular!</h2>
+    <p>O jogo foi desenhado para o modo **Horizontal**.</p>
+  </div>
+
+  <!-- Tela Inicial -->
+  <div id="telaInicial">
+    <h2>📦 Separador iFood — Desvie dos Clientes</h2>
+    <p>Cuidado para não esbarrar e perder tempo!</p>
+    <button id="btnJogar">INICIAR TURNO</button>
+  </div>
+
+  <!-- Tela de Splash / Carregamento -->
+  <div id="telaSplash">
+    <div class="spinner"></div>
+    <h2>Preparando o turno...</h2>
+  </div>
+
+  <!-- Modal de Vitória / Resumo -->
+  <div id="modalVitoria">
+    <h1 id="tituloModal">🎉 Pedido Concluído!</h1>
+    <p>Itens Coletados: <b id="itensColetadosText">0/0</b> (<span id="percentualText">0%</span>)</p>
+    <p>Moedas Ganhas: <b id="moedasGanhasText" style="color: #f59e0b;">0 🪙</b></p>
+    <p>Saldo Total de Moedas: <b id="saldoMoedasText">0 🪙</b></p>
+    <button class="btn-reiniciar" onclick="prepararNovoPedido()">PRÓXIMO PEDIDO</button>
+  </div>
+
+  <!-- Área do Jogo -->
+  <div id="gameArea">
+    <!-- Joystick Analógico à Esquerda -->
+    <div id="joystickBase">
+      <div id="joystickHandle"></div>
+    </div>
+
+    <!-- Canvas do Jogo ao Centro -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Painel Lateral Vertical na Direita -->
+    <div class="right-panel">
+      <div class="info-card">
+        
+        <h4>Moedas</h4>
+        <div class="num-destaque" style="color: #f59e0b;" id="moedasNum">0 🪙</div>
+
+        <hr>
+
+        <h4>Pedidos OK</h4>
+        <div class="num-destaque" id="pedidosConcluidosNum">0</div>
+
+        <hr>
+
+        <h4>Itens Entregues</h4>
+        <div class="num-destaque" id="qtdItensNum">0/0</div>
+
+        <hr>
+
+        <h4>Tempo Restante</h4>
+        <div class="timer-val" id="timerText">0.0s</div>
+
+        <hr>
+
+        <div class="shopping-list-container">
+        <h5>Lista</h5>
+        <ul id="listaItensUI"></ul>
+        </div>
+
+      </div>
+
+      <div class="action-container" id="actionGroup">
+        <button class="btn-acao" id="bAcao" title="Coletar / Entregar">🛒</button>
+      </div>
+    </div>
+
+    <!-- Overlay com o Botão "Separar Pedido" -->
+    <div id="overlayPronto">
+      <button id="btnSepararPedido">📦 SEPARAR PEDIDO</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const COLS = 20;
+    const ROWS = 12;
+    let tileSize = 0;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const CATALOGO_ITENS = [
+      { nome: "Maçã", icone: "🍎" },
+      { nome: "Leite", icone: "🥛" },
+      { nome: "Pão de Forma", icone: "🍞" },
+      { nome: "Refrigerante", icone: "🥤" },
+      { nome: "Queijo", icone: "🧀" },
+      { nome: "Banana", icone: "🍌" },
+      { nome: "Café", icone: "☕" },
+      { nome: "Arroz", icone: "🍚" },
+      { nome: "Feijão", icone: "🫘" },
+      { nome: "Ovos", icone: "🥚" },
+      { nome: "Manteiga", icone: "🧈" },
+      { nome: "Chocolate", icone: "🍫" },
+      { nome: "Pizza", icone: "🍕" },
+      { nome: "Morango", icone: "🍓" },
+      { nome: "Abacate", icone: "🥑" },
+      { nome: "Cenoura", icone: "🥕" },
+      { nome: "Batata", icone: "🥔" },
+      { nome: "Suco de Laranja", icone: "🧃" },
+      { nome: "Sorvete", icone: "🍨" },
+      { nome: "Água de Coco", icone: "🥥" }
+    ];
+
+    const FALAS_CLIENTES = [
+      "Pow, cuidado aê!",
+      "Tá me vendo não?",
+      "Ê, meu carrinho!",
+      "Olha por onde anda!",
+      "Com licença, jovem!"
+    ];
+
+    const FRASES_ENTREGADORES = [
+      "Opa chefe, o cliente tá cobrando o pedido na porta!",
+      "Capricha aí separador, a bag tá lotada de entrega!",
+      "Rápido mano, o motoca já tá com o motor ligadão!",
+      "Bora que o tempo é ouro, preciso desse pedido pra ontem!",
+      "Acelera na separação que a rota tá estourada!"
+    ];
+
+    const COLETA_POS = { x: 18, y: 10 };
+
+    let playerX = 5;
+    let playerY = 6;
+    let temItemNoCarrinho = false;
+    let itemColetadoAtual = null;
+
+    let listaPedido = [];
+    let itemAtualNoMapa = null;
+    let entreguesCount = 0;
+    let pedidosConcluidosCount = 0;
+    let moedasTotais = 0;
+
+    let tempoRestanteSegundos = 0;
+    let timerInterval = null;
+    let jogoAtivo = false;
+
+    let penalidadeAte = 0; 
+    let clientes = [];
+
+    let entregadorAtivo = false;
+    let entregadorProgressoAnimacao = 0;
+    let entregadorFala = "";
+
+    let joystickAtivo = false;
+    let joystickVector = { x: 0, y: 0 };
+    let ultimoMovimentoPlayer = 0;
+    const INTERVALO_MOVIMENTO_BASE = 160;
+
+    function iniciarJogo() {
+      const docEl = document.documentElement;
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(() => {});
+      } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
+      }
+
+      document.getElementById("telaInicial").style.display = "none";
+      document.getElementById("telaSplash").style.display = "flex";
+
+      setTimeout(() => {
+        document.getElementById("telaSplash").style.display = "none";
+        document.getElementById("gameArea").style.display = "block";
+        
+        pedidosConcluidosCount = 0;
+        moedasTotais = 0;
+        
+        redimensionar();
+        prepararNovoPedido();
+      }, 800);
+    }
+
+    function prepararNovoPedido() {
+      document.getElementById("modalVitoria").style.display = "none";
+      jogoAtivo = false; 
+      if (timerInterval) clearInterval(timerInterval);
+
+      redimensionar();
+
+      playerX = 5;
+      playerY = 6;
+      temItemNoCarrinho = false;
+      itemColetadoAtual = null;
+      entreguesCount = 0;
+      penalidadeAte = 0;
+      entregadorAtivo = false;
+      entregadorProgressoAnimacao = 0;
+      atualizarEstadoControles(false);
+
+      const qtdItens = Math.floor(Math.random() * 20) + 1;
+      listaPedido = [];
+      
+      let embaralhado = [...CATALOGO_ITENS].sort(() => 0.5 - Math.random());
+      for (let i = 0; i < qtdItens; i++) {
+        let baseItem = embaralhado[i % embaralhado.length];
+        listaPedido.push({ ...baseItem, entregue: false });
+      }
+
+      tempoRestanteSegundos = listaPedido.length * 10;
+      document.getElementById("timerText").innerText = `${tempoRestanteSegundos.toFixed(1)}s`;
+
+      gerarProximoItemNoMapa();
+      atualizarInterfaceLista();
+
+      clientes = [
+        { x: 4, y: 2, dx: 1, dy: 0, icone: "🚶", fala: "", tempoFalaAte: 0, inicioFala: 0 },
+        { x: 14, y: 7, dx: -1, dy: 0, icone: "👵", fala: "", tempoFalaAte: 0, inicioFala: 0 },
+        { x: 9, y: 5, dx: 0, dy: 1, icone: "👨", fala: "", tempoFalaAte: 0, inicioFala: 0 }
+      ];
+
+      desenharTudo();
+      document.getElementById("overlayPronto").style.display = "flex";
+    }
+
+    function iniciarPartidaReal() {
+      document.getElementById("overlayPronto").style.display = "none";
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(atualizarTimerRegressivo, 100);
+
+      jogoAtivo = true;
+      requestAnimationFrame(loopDoJogo);
+    }
+
+    function atualizarTimerRegressivo() {
+      if (!jogoAtivo) return;
+      tempoRestanteSegundos -= 0.1;
+      if (tempoRestanteSegundos < 0) tempoRestanteSegundos = 0;
+
+      document.getElementById("timerText").innerText = `${tempoRestanteSegundos.toFixed(1)}s`;
+
+      // Gatilho do Entregador: exatamente 3 segundos para acabar o tempo
+      if (tempoRestanteSegundos <= 3.0 && !entregadorAtivo && entreguesCount < listaPedido.length) {
+        acionarEntregadorMoto();
+      }
+
+      if (tempoRestanteSegundos <= 0) {
+        clearInterval(timerInterval);
+        finalizarPedidoPorTempoEsgotado();
+      }
+    }
+
+    function acionarEntregadorMoto() {
+      entregadorAtivo = true;
+      entregadorProgressoAnimacao = 0;
+      entregadorFala = FRASES_ENTREGADORES[Math.floor(Math.random() * FRASES_ENTREGADORES.length)];
+      
+      let animarEntrada = setInterval(() => {
+        entregadorProgressoAnimacao += 0.04;
+        if (entregadorProgressoAnimacao >= 1) {
+          entregadorProgressoAnimacao = 1;
+          clearInterval(animarEntrada);
+        }
+      }, 50);
+    }
+
+    function ehPrateleira(c, r) {
+      let ePrateleiraCima = (r >= 2 && r <= 4 && c >= 2 && c <= 17 && c % 2 === 0);
+      let ePrateleiraBaixo = (r >= 7 && r <= 9 && c >= 2 && c <= 17 && c % 2 === 0);
+      return ePrateleiraCima || ePrateleiraBaixo;
+    }
+
+    function gerarProximoItemNoMapa() {
+      const proximo = listaPedido.find(i => !i.entregue);
+      if (!proximo) {
+        itemAtualNoMapa = null;
+        return;
+      }
+
+      let vx, vy;
+      do {
+        vx = Math.floor(Math.random() * COLS);
+        vy = Math.floor(Math.random() * ROWS);
+      } while (ehPrateleira(vx, vy) || (vx === COLETA_POS.x && vy === COLETA_POS.y));
+
+      itemAtualNoMapa = { info: proximo, x: vx, y: vy };
+    }
+
+    function atualizarInterfaceLista() {
+        const ul = document.getElementById("listaItensUI");
+
+        if (ul) {
+            ul.innerHTML = "";
+
+            listaPedido.forEach(item => {
+            const li = document.createElement("li");
+
+            if (item.entregue) {
+                li.classList.add("concluido");
+            }
+
+            const nomeItem = document.createElement("span");
+            nomeItem.textContent = `${item.icone} ${item.nome}`;
+
+            const statusItem = document.createElement("span");
+            statusItem.textContent = item.entregue ? "✅" : "";
+
+            li.appendChild(nomeItem);
+            li.appendChild(statusItem);
+            ul.appendChild(li);
+            });
+        }
+
+        const qtdItensNum = document.getElementById("qtdItensNum");
+        if (qtdItensNum) {
+            qtdItensNum.innerText = `${entreguesCount}/${listaPedido.length}`;
+        }
+
+        const pedidosConcluidosNum = document.getElementById("pedidosConcluidosNum");
+        if (pedidosConcluidosNum) {
+            pedidosConcluidosNum.innerText = pedidosConcluidosCount;
+        }
+
+        const moedasNum = document.getElementById("moedasNum");
+        if (moedasNum) {
+            moedasNum.innerText = `${moedasTotais} 🪙`;
+        }
+    }
+
+    function redimensionar() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const margemEsquerda = 165;
+      const margemDireita = 165;
+      const margemVertical = 20;
+
+      const larguraDisponivel = Math.max(200, canvas.width - margemEsquerda - margemDireita);
+      const alturaDisponivel = Math.max(200, canvas.height - margemVertical);
+
+      let sizeW = larguraDisponivel / COLS;
+      let sizeH = alturaDisponivel / ROWS;
+      
+      tileSize = Math.min(sizeW, sizeH);
+
+      offsetX = margemEsquerda + (larguraDisponivel - (COLS * tileSize)) / 2;
+      offsetY = (canvas.height - (ROWS * tileSize)) / 2;
+    }
+
+    let ultimoMovimentoNPC = 0;
+    function atualizarClientes(tempoAtual) {
+      if (tempoAtual - ultimoMovimentoNPC > 1100) {
+        const direcoes = [
+          {dx: 1, dy: 0}, {dx: -1, dy: 0},
+          {dx: 0, dy: 1}, {dx: 0, dy: -1}
+        ];
+
+        clientes.forEach(cliente => {
+          if (Math.random() < 0.6) {
+            let dirAleatoria = direcoes[Math.floor(Math.random() * direcoes.length)];
+            cliente.dx = dirAleatoria.dx;
+            cliente.dy = dirAleatoria.dy;
+          }
+
+          let proximoX = cliente.x + cliente.dx;
+          let proximoY = cliente.y + cliente.dy;
+
+          if (proximoX < 0 || proximoX >= COLS || proximoY < 0 || proximoY >= ROWS || ehPrateleira(proximoX, proximoY)) {
+            cliente.dx = -cliente.dx;
+            cliente.dy = -cliente.dy;
+          } else {
+            cliente.x = proximoX;
+            cliente.y = proximoY;
+          }
+        });
+        ultimoMovimentoNPC = tempoAtual;
+      }
+    }
+
+    function atualizarEstadoControles(bloquear) {
+      const joystick = document.getElementById("joystickBase");
+      const action = document.getElementById("actionGroup");
+
+      if (bloquear) {
+        joystick.classList.add("controles-bloqueados");
+        action.classList.add("controles-bloqueados");
+      } else {
+        joystick.classList.remove("controles-bloqueados");
+        action.classList.remove("controles-bloqueados");
+      }
+    }
+
+    function loopDoJogo(tempoAtual) {
+      if (!jogoAtivo) return;
+
+      const agora = Date.now();
+      const estaPenalizado = agora < penalidadeAte;
+
+      atualizarEstadoControles(estaPenalizado);
+
+      if (!estaPenalizado && (joystickVector.x !== 0 || joystickVector.y !== 0)) {
+        let magnitude = Math.hypot(joystickVector.x, joystickVector.y);
+        let intervaloDinamico = Math.max(80, INTERVALO_MOVIMENTO_BASE - (magnitude * 70));
+
+        if (agora - ultimoMovimentoPlayer > intervaloDinamico) {
+          let dx = 0;
+          let dy = 0;
+          if (Math.abs(joystickVector.x) > Math.abs(joystickVector.y)) {
+            dx = joystickVector.x > 0 ? 1 : -1;
+          } else {
+            dy = joystickVector.y > 0 ? 1 : -1;
+          }
+          mover(dx, dy);
+          ultimoMovimentoPlayer = agora;
+        }
+      }
+
+      atualizarClientes(tempoAtual);
+      desenharTudo();
+
+      requestAnimationFrame(loopDoJogo);
+    }
+
+    function desenharTudo() {
+      if (canvas.width === 0) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#181818";
+      ctx.fillRect(offsetX, offsetY, COLS * tileSize, ROWS * tileSize);
+
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          let x = offsetX + (c * tileSize);
+          let y = offsetY + (r * tileSize);
+
+          ctx.strokeStyle = "#282828";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x, y, tileSize, tileSize);
+
+          if (ehPrateleira(c, r)) {
+            ctx.fillStyle = "#1b4965";
+            ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+            ctx.strokeStyle = "#bee9e8";
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+          }
+        }
+      }
+
+      ctx.strokeStyle = "#ea1d2c";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(offsetX, offsetY, COLS * tileSize, ROWS * tileSize);
+
+      let coletaX = offsetX + (COLETA_POS.x * tileSize);
+      let coletaY = offsetY + (COLETA_POS.y * tileSize);
+
+      ctx.beginPath();
+      ctx.arc(coletaX + tileSize/2, coletaY + tileSize/2, tileSize * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(234, 29, 44, 0.3)";
+      ctx.fill();
+      ctx.strokeStyle = "#ea1d2c";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold ${tileSize * 0.22}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillText("COLETA", coletaX + tileSize/2, coletaY + tileSize * 0.55);
+
+      if (itemAtualNoMapa && !temItemNoCarrinho) {
+        let ix = offsetX + (itemAtualNoMapa.x * tileSize);
+        let iy = offsetY + (itemAtualNoMapa.y * tileSize);
+
+        ctx.beginPath();
+        ctx.arc(ix + tileSize/2, iy + tileSize/2, tileSize * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(245, 158, 11, 0.35)";
+        ctx.fill();
+
+        ctx.font = `${tileSize * 0.75}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText(itemAtualNoMapa.info.icone, ix + tileSize/2, iy + tileSize * 0.75);
+      }
+
+      const agora = Date.now();
+      clientes.forEach(cliente => {
+        let cx = offsetX + (cliente.x * tileSize);
+        let cy = offsetY + (cliente.y * tileSize);
+
+        ctx.font = `${tileSize * 0.65}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText(cliente.icone, cx + tileSize/2, cy + tileSize * 0.72);
+
+        if (agora < cliente.tempoFalaAte) {
+          let tempoRestante = (cliente.tempoFalaAte - agora) / 1000;
+          let progresso = (agora - cliente.inicioFala) / 2000;
+          desenharBalaoComCronometroSeguro(cx + tileSize/2, cy - 12, cliente.fala, tempoRestante, progresso);
+        }
+      });
+
+      // Motoqueiro passando FORA da área jogável (logo abaixo do retângulo vermelho do mercado)
+      if (entregadorAtivo) {
+        let inicioScreenX = offsetX;
+        let alvoScreenX = offsetX + (COLS * tileSize * 0.4);
+        let motoScreenX = inicioScreenX + (alvoScreenX - inicioScreenX) * entregadorProgressoAnimacao;
+        let motoScreenY = offsetY + (ROWS * tileSize) + 8;
+
+        ctx.font = `${tileSize * 0.75}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText("🏍️", motoScreenX, motoScreenY + tileSize * 0.5);
+
+        desenharBalaoComCronometroSeguro(motoScreenX, motoScreenY - 10, entregadorFala, 3.0, 0);
+      }
+
+      let pScreenX = offsetX + (playerX * tileSize);
+      let pScreenY = offsetY + (playerY * tileSize);
+
+      ctx.fillStyle = (agora < penalidadeAte) ? "#f59e0b" : "#ea1d2c";
+      ctx.beginPath();
+      ctx.roundRect(pScreenX + 2, pScreenY + 2, tileSize - 4, tileSize - 4, 6);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `${tileSize * 0.55}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillText(temItemNoCarrinho ? itemColetadoAtual.icone : "🛒", pScreenX + tileSize/2, pScreenY + tileSize * 0.72);
+    }
+
+    function desenharBalaoComCronometroSeguro(x, y, texto, tempoRestante, progresso) {
+      ctx.font = "bold 13px sans-serif";
+      let larguraTexto = ctx.measureText(texto).width;
+      
+      let raioCirculo = 12;
+      let w = larguraTexto + raioCirculo * 2 + 32;
+      let h = 36;
+      let bx = x - w / 2;
+
+      let margemSeguranca = 15;
+      if (bx < margemSeguranca) {
+        bx = margemSeguranca;
+      } else if (bx + w > window.innerWidth - margemSeguranca) {
+        bx = window.innerWidth - margemSeguranca - w;
+      }
+
+      let by = y - h;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.roundRect(bx, by, w, h, 8);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(x - 6, by + h);
+      ctx.lineTo(x, by + h + 8);
+      ctx.lineTo(x + 6, by + h);
+      ctx.fill();
+
+      ctx.strokeStyle = "#1e293b";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, w, h);
+
+      ctx.fillStyle = "#0f172a";
+      ctx.textAlign = "left";
+      ctx.fillText(texto, bx + 12, by + 23);
+
+      if (progresso > 0) {
+        let cxCirculo = bx + w - raioCirculo - 10;
+        let cyCirculo = by + h / 2;
+
+        ctx.beginPath();
+        ctx.arc(cxCirculo, cyCirculo, raioCirculo, 0, Math.PI * 2);
+        ctx.fillStyle = "#e2e8f0";
+        ctx.fill();
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cxCirculo, cyCirculo);
+        ctx.arc(cxCirculo, cyCirculo, raioCirculo, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * (1 - progresso)), false);
+        ctx.lineTo(cxCirculo, cyCirculo);
+        ctx.fillStyle = "#f59e0b";
+        ctx.fill();
+
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "bold 10px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(Math.max(0, tempoRestante).toFixed(1) + "s", cxCirculo, cyCirculo + 3);
+      }
+    }
+
+    function mover(dx, dy) {
+      if (!jogoAtivo || Date.now() < penalidadeAte) return;
+
+      let nx = playerX + dx;
+      let ny = playerY + dy;
+
+      if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+        if (!ehPrateleira(nx, ny)) {
+          let clienteColidido = clientes.find(c => c.x === nx && c.y === ny);
+          if (clienteColidido) {
+            let agora = Date.now();
+            penalidadeAte = agora + 2000;
+
+            if (navigator.vibrate) {
+              navigator.vibrate(200);
+            }
+
+            clienteColidido.fala = FALAS_CLIENTES[Math.floor(Math.random() * FALAS_CLIENTES.length)];
+            clienteColidido.inicioFala = agora;
+            clienteColidido.tempoFalaAte = agora + 2000;
+            
+            atualizarEstadoControles(true);
+          } else {
+            playerX = nx;
+            playerY = ny;
+          }
+        }
+      }
+    }
+
+    function executarAcao() {
+      if (!jogoAtivo || Date.now() < penalidadeAte) return;
+
+      if (!temItemNoCarrinho && itemAtualNoMapa) {
+        if (playerX === itemAtualNoMapa.x && playerY === itemAtualNoMapa.y) {
+          temItemNoCarrinho = true;
+          itemColetadoAtual = itemAtualNoMapa.info;
+          return;
+        }
+      }
+
+      if (temItemNoCarrinho) {
+        let distancia = Math.hypot(playerX - COLETA_POS.x, playerY - COLETA_POS.y);
+        if (distancia <= 1.5) {
+          let itemNaLista = listaPedido.find(i => i.nome === itemColetadoAtual.nome && !i.entregue);
+          if (itemNaLista) itemNaLista.entregue = true;
+
+          temItemNoCarrinho = false;
+          itemColetadoAtual = null;
+          entreguesCount++;
+
+          atualizarInterfaceLista();
+
+          if (entreguesCount >= listaPedido.length) {
+            finalizarPedidoComSucesso();
+          } else {
+            gerarProximoItemNoMapa();
+          }
+        }
+      }
+    }
+
+    function calcularMoedasGanhas() {
+      let totalItens = listaPedido.length;
+      let percentual = Math.round((entreguesCount / totalItens) * 100);
+      let moedas = 0;
+
+      if (percentual === 100) {
+        moedas = totalItens * 5;
+      } else if (percentual >= 76) {
+        moedas = totalItens * 4;
+      } else if (percentual >= 50) {
+        moedas = totalItens * 3;
+      } else if (percentual >= 20) {
+        moedas = totalItens * 2;
+      } else if (percentual >= 1) {
+        moedas = totalItens * 1;
+      } else {
+        moedas = 0;
+      }
+
+      return { moedas, percentual };
+    }
+
+    function finalizarPedidoComSucesso() {
+      jogoAtivo = false;
+      clearInterval(timerInterval);
+      pedidosConcluidosCount++;
+      atualizarEstadoControles(false);
+
+      let resultado = calcularMoedasGanhas();
+      moedasTotais += resultado.moedas;
+
+      document.getElementById("tituloModal").innerText = "🎉 Pedido Concluído com Sucesso!";
+      document.getElementById("itensColetadosText").innerText = `${entreguesCount}/${listaPedido.length}`;
+      document.getElementById("percentualText").innerText = `${resultado.percentual}%`;
+      document.getElementById("moedasGanhasText").innerText = `+${resultado.moedas} 🪙`;
+      document.getElementById("saldoMoedasText").innerText = `${moedasTotais} 🪙`;
+      document.getElementById("modalVitoria").style.display = "flex";
+      atualizarInterfaceLista();
+    }
+
+    function finalizarPedidoPorTempoEsgotado() {
+      jogoAtivo = false;
+      clearInterval(timerInterval);
+      atualizarEstadoControles(false);
+
+      let resultado = calcularMoedasGanhas();
+      moedasTotais += resultado.moedas;
+
+      document.getElementById("tituloModal").innerText = "⏰ Tempo Esgotado!";
+      document.getElementById("itensColetadosText").innerText = `${entreguesCount}/${listaPedido.length}`;
+      document.getElementById("percentualText").innerText = `${resultado.percentual}%`;
+      document.getElementById("moedasGanhasText").innerText = `+${resultado.moedas} 🪙`;
+      document.getElementById("saldoMoedasText").innerText = `${moedasTotais} 🪙`;
+      document.getElementById("modalVitoria").style.display = "flex";
+      atualizarInterfaceLista();
+    }
+
+    const joystickBase = document.getElementById("joystickBase");
+    const joystickHandle = document.getElementById("joystickHandle");
+    const raioJoystick = 45;
+
+    joystickBase.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      joystickAtivo = true;
+    }, {passive: false});
+
+    window.addEventListener("touchmove", (e) => {
+      if (!joystickAtivo) return;
+      e.preventDefault();
+
+      let touch = e.touches[0];
+      let rect = joystickBase.getBoundingClientRect();
+      let centerX = rect.left + rect.width / 2;
+      let centerY = rect.top + rect.height / 2;
+
+      let deltaX = touch.clientX - centerX;
+      let deltaY = touch.clientY - centerY;
+      let distancia = Math.hypot(deltaX, deltaY);
+
+      if (distancia > raioJoystick) {
+        deltaX = (deltaX / distancia) * raioJoystick;
+        deltaY = (deltaY / distancia) * raioJoystick;
+      }
+
+      joystickHandle.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+      joystickVector.x = deltaX / raioJoystick;
+      joystickVector.y = deltaY / raioJoystick;
+    }, {passive: false});
+
+    function resetarJoystick() {
+      joystickAtivo = false;
+      joystickVector = { x: 0, y: 0 };
+      joystickHandle.style.transform = `translate(0px, 0px)`;
+    }
+
+    window.addEventListener("touchend", resetarJoystick);
+    window.addEventListener("touchcancel", resetarJoystick);
+
+    const btnAcao = document.getElementById("bAcao");
+    btnAcao.addEventListener("touchstart", (e) => { e.preventDefault(); executarAcao(); });
+    btnAcao.addEventListener("click", executarAcao);
+
+    document.getElementById("btnJogar").addEventListener("click", iniciarJogo);
+    document.getElementById("btnSepararPedido").addEventListener("click", iniciarPartidaReal);
+    window.addEventListener("resize", () => {
+      redimensionar();
+      desenharTudo();
+    });
+  </script>
+
+</body>
+</html>
